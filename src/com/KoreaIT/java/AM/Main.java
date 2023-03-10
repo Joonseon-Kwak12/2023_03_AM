@@ -8,29 +8,32 @@ import java.util.Scanner;
 //1. 게시글 관련 기능(Article 혹은 Post), 2. 회원 관련 기능(Member)
 public class Main {
 	static List<Article> articles = new ArrayList<>();
-	
+	static List<Member> members = new ArrayList<>();
+
 	public static void main(String[] args) {
 		System.out.println("==프로그램 시작==");
 
 		makeTestData();
+		makeMemberTestData();
 
 		Scanner sc = new Scanner(System.in);
-		int lastArticleId = 3;
-		// int articleId = lastArticleId + 1; 여기에 넣으면 "1번글이 생성되었습니다."만 나옴
-		// 메인 메소드 내에서 while문 돌면서 articleId를 증가시켜줘야하는 데 그러지 못하기 때문
-		// List<Article> articles = new ArrayList<>(); // articles를 로컬 변수가 아니라 전역 변수로 만들어줘야해서 메인메소드 밖으로 뺌
 
+		int lastArticleId = 3;
+		int lastMemberId = 3;
+		
+		System.out.println(isDuplicationMemberId(sc.nextLine()));
+		
 		while (true) {
-			// List<Article> articles = new ArrayList<>(); // 이게 여기 있으면 articles가 반복문 끝날 때
-			// 사라지고 계속 초기화됨
 			System.out.print("명령어 >> ");
 			String command = sc.nextLine().trim();
-
+			//
+			//
 			if (command.length() == 0) {
 				System.out.println("명령어를 입력해주세요.");
 				continue;
 			}
-
+			//
+			//
 			if (command.equals("addt3st")) {
 				if (lastArticleId != 0) {
 					System.out.println("다른 글이 있을 경우 addt3st는 사용할 수 없습니다.");
@@ -44,71 +47,81 @@ public class Main {
 					continue;
 				}
 			}
-
+			//
+			//
 			if (command.equals("exit")) { // 이런 코드는 따로 빼준다.
 				break;
 			}
-
-			if (command.equals("article list")) {
+			//
+			// article list
+			if (command.startsWith("article list")) {
 				if (articles.size() == 0) {
-					System.out.println("게시글이 없습니다.");
-				} else {
-					System.out.println("  번호  //  제목  //  조회  ");
-					for (int i = articles.size() - 1; i >= 0; i--) {
-						Article article = articles.get(i);
-						System.out.printf("  %d  //  %s  //  %d  \n", article.articleId, article.title, article.hits);
+					System.out.println("게시글이 없습니다");
+					continue;
+				}
+
+				String searchKeyword = command.substring("article list".length()).trim();
+
+				List<Article> forPrintArticles = articles;
+
+				if (searchKeyword.length() > 0) {
+					System.out.println("searchKeyword : " + searchKeyword);
+					forPrintArticles = new ArrayList<>();
+
+					for (Article article : articles) {
+						if (article.title.contains(searchKeyword)) {
+							forPrintArticles.add(article);
+						}
+					}
+					if (forPrintArticles.size() == 0) {
+						System.out.println("검색 결과가 없습니다");
+						continue;
 					}
 				}
 
+				System.out.println(" 번호  //  제목    //  조회  ");
+				for (int i = forPrintArticles.size() - 1; i >= 0; i--) {
+					Article article = forPrintArticles.get(i);
+					System.out.printf("  %d   //   %s   //   %d  \n", article.articleId, article.title, article.hits);
+				}
+
+				//
+				//
+				// article write
 			} else if (command.equals("article write")) {
-				int articleId = lastArticleId + 1;
 				System.out.print("제목: ");
 				String title = sc.nextLine();
 				System.out.print("내용: ");
 				String body = sc.nextLine();
 				String regDate = Util.getNowDateTimeStr();
 
+				int articleId = ++lastArticleId;
 				Article article = new Article(articleId, regDate, regDate, title, body);
 				articles.add(article);
 
 				System.out.printf("%d번글이 생성되었습니다.\n", article.articleId);
-				lastArticleId++;
-
+				//
+				//
+				// article detail
 			} else if (command.startsWith("article detail")) {
 				String[] cmdDiv = command.split(" ");
-				if (cmdDiv.length != 3) { // 작성 예시 코드와 다른 부분 시작
+				if (cmdDiv.length != 3) {
 					System.out.println("명령어를 확인해주세요.");
 					continue;
 				}
-				int id; // 작성 예시 코드에는 없는 부분 시작
+				int articleId;
 				try {
-					id = Integer.parseInt(cmdDiv[2]);
+					articleId = Integer.parseInt(cmdDiv[2]);
 				} catch (NumberFormatException e) {
 					System.out.println("게시물 번호를 숫자로 입력해주세요.");
 					continue;
-				} // 작성 예시 코드에는 없는 부분 끝
-
-				// boolean found = false; // found 변수 활용하여 있는 경우, 없는 경우 구현 // foundArticle 들어오면서
-				// 필요 없어짐
-				Article foundArticle = null;
-				// (내가 작성해봤던 코드)int foundIndex = 0;
-
-				for (int i = 0; i < articles.size(); i++) {
-					Article article = articles.get(i);
-					if (article.articleId == id) {
-						// found = true; // foundArticle 들어오면서 필요 없어짐
-						// (내가 작성해봤던 코드)foundIndex = articles.indexOf(article);
-						foundArticle = article;
-
-						break; // 찾으면 위 for문을 벗어나도록 해야함
-					}
 				}
+				Article foundArticle = getArticleByArticleId(articleId);
 
 				if (foundArticle == null) {
-					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
+					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", articleId);
 					continue;
-				} // else {}
-					// 바로 위 조건문에 continue; 추가해주면 else 날려버릴 수 있다.
+				}
 				foundArticle.hits++;
 				System.out.println("번호: " + foundArticle.articleId);
 				System.out.println("작성날짜: " + foundArticle.regDate);
@@ -116,103 +129,53 @@ public class Main {
 				System.out.println("조회수: " + foundArticle.hits);
 				System.out.println("제목: " + foundArticle.title);
 				System.out.println("내용: " + foundArticle.body);
-				// (내가 작성해봤던 코드)System.out.println("제목: " + articles.get(foundIndex).title);
-				// 이렇게도 가능하지만 낭비가 있는 느낌인 듯
-
+				//
+				//
+				// article delete
 			} else if (command.startsWith("article delete")) {
-//            	String[] cmdDiv = command.split(" ");
-//            	if (cmdDiv.length != 3) { // 작성 예시 코드와 다른 부분 시작
-//            		System.out.println("명령어를 확인해주세요.");
-//            		continue;
-//            		}
-//            	int id;
-//				try {
-//					id = Integer.parseInt(cmdDiv[2]);
-//				} catch (NumberFormatException e) {
-//					System.out.println("게시물 번호를 숫자로 입력해주세요.");
-//					continue;
-//				} // 작성 예시 코드에는 없는 부분 끝
-//            	if (id > articles.size() || id <= 0) {
-//            		System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
-//            	} else {
-//            		//
-//            		articles.remove(id -1); // 삭제하면 인덱스와 게시물 번호가 불일치하는 문제 시작 // 인덱스 기준으로 작성된 다른 모든 코드 검토해야함
-				// 결국 작성 예시코드 따라가야함
-//            	}
 				String[] cmdDiv = command.split(" ");
-				if (cmdDiv.length != 3) { // 작성 예시 코드와 다른 부분 시작
+				if (cmdDiv.length != 3) {
 					System.out.println("명령어를 확인해주세요.");
 					continue;
 				}
-				int id; // 작성 예시 코드에는 없는 부분 시작
+				int articleId;
 				try {
-					id = Integer.parseInt(cmdDiv[2]);
+					articleId = Integer.parseInt(cmdDiv[2]);
 				} catch (NumberFormatException e) {
 					System.out.println("게시물 번호를 숫자로 입력해주세요.");
 					continue;
-				} // 작성 예시 코드에는 없는 부분 끝
-
-				// 작성 예시와 다르게 작성한 코드 시작
-//            	Article foundArticle = null;
-//            	
-//            	for (int i = 0; i < articles.size(); i++) {
-//            		Article article = articles.get(i);
-//            		if (article.articleId == id) {
-//            			foundArticle = article;
-//            			break; // 찾으면 위 for문을 벗어나도록 해야함
-//            		}
-//            	}
-//            	
-//            	if (foundArticle == null) {
-//					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
-//					continue;
-//				} 
-//            	articles.remove(foundArticle);
-//            	System.out.println(foundArticle.articleId + "번 게시물이 삭제되었습니다.");
-				// 작성 예시와 다르게 작성한 코드 끝
-				int foundIndex = -1;
-				for (int i = 0; i < articles.size(); i++) {
-					Article article = articles.get(i);
-					if (article.articleId == id) {
-						foundIndex = i;
-						break;
-					}
 				}
 
+				int foundIndex = getArticleIndexByArticleId(articleId);
+
 				if (foundIndex == -1) {
-					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
+					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", articleId);
 					continue;
 				}
 
 				articles.remove(foundIndex);
-				System.out.println(id + "번 게시물이 삭제되었습니다.");
-
+				System.out.println(articleId + "번 게시물이 삭제되었습니다.");
+				//
+				//
+				// article modify
 			} else if (command.startsWith("article modify")) {
 				String[] cmdDiv = command.split(" ");
-				if (cmdDiv.length != 3) { // 작성 예시 코드와 다른 부분 시작
+				if (cmdDiv.length != 3) {
 					System.out.println("명령어를 확인해주세요.");
 					continue;
 				}
-				int id; // 작성 예시 코드에는 없는 부분 시작
+				int articleId;
 				try {
-					id = Integer.parseInt(cmdDiv[2]);
+					articleId = Integer.parseInt(cmdDiv[2]);
 				} catch (NumberFormatException e) {
 					System.out.println("게시물 번호를 숫자로 입력해주세요.");
 					continue;
-				} // 작성 예시 코드에는 없는 부분 끝
-
-				Article foundArticle = null;
-
-				for (int i = 0; i < articles.size(); i++) {
-					Article article = articles.get(i);
-					if (article.articleId == id) {
-						foundArticle = article;
-						break;
-					}
 				}
 
+				Article foundArticle = getArticleByArticleId(articleId);
+
 				if (foundArticle == null) {
-					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
+					System.out.printf("%d번 게시물은 존재하지 않습니다.\n", articleId);
 					continue;
 				}
 				System.out.print("수정할 제목: ");
@@ -225,7 +188,64 @@ public class Main {
 				foundArticle.body = body;
 				foundArticle.modDate = modDate;
 				System.out.println(foundArticle.articleId + "번 게시물이 수정되었습니다.");
+				//
+				//
+				// member join
+			} else if (command.equals("member join")) {
+//				System.out.print("사용할 아이디를 입력해주세요 >> ");
+//				String memberLoginId = sc.nextLine();
+//				if (isDuplicationMemberId(memberLoginId)) {
+//					do {
+//						System.out.printf("이미 사용중인 아이디입니다.");
+//						System.out.print("사용할 아이디를 다시 입력해주세요 >> ");
+//						memberLoginId = sc.nextLine();
+//					} while (isDuplicationMemberId(memberLoginId));
+//				}
+//				System.out.printf("입력된 아이디는 %s입니다.\n", memberLoginId);
+//				System.out.print("사용할 비밀번호를 입력해주세요 >> ");
+//				String memberLoginPw = sc.nextLine();
+//				System.out.print("이름을 입력해주세요 >> ");
+//				String memberName = sc.nextLine();
+//
+//				String memberRegDate = Util.getNowDateTimeStr();
+//				int memberId = ++lastMemberId;
+//				members.add(new Member(memberId, memberRegDate, memberRegDate, memberLoginId, memberLoginPw, memberName));
+//				System.out.printf("%d번 회원님 가입이 완료되었습니다.\n회원님의 아이디는 %s입니다.\n", memberId, memberLoginId);
+				int memberId = lastMemberId + 1;
+				String memberRegDate = Util.getNowDateTimeStr();
+				String memberLoginId = null;
+				while (true) {
+					System.out.print("로그인 아이디 : ");
+					memberLoginId = sc.nextLine();
 
+					if (isJoinableLoginId(memberLoginId) == false) {
+						System.out.println("이미 사용중인 아이디입니다");
+						continue;
+					}
+
+					break;
+
+				}
+				System.out.print("로그인 비밀번호 : ");
+				String memberLoginPw = sc.nextLine();
+				System.out.print("로그인 비밀번호 확인: ");
+				String loginPwConfirm = sc.nextLine();
+				System.out.print("이름 : ");
+				String memberName = sc.nextLine();
+
+				Member member = new Member(memberId, memberRegDate, memberRegDate, memberLoginId, memberLoginPw, memberName);
+				members.add(member);
+
+				System.out.printf("%d번 회원이 가입되었습니다\n", memberId);
+				lastMemberId++;
+
+				//
+				//
+				//
+			} else if (command.equals("member list")) {
+				//
+				//
+				// 존재하지 않는 명령어 출력
 			} else {
 				System.out.println("존재하지 않는 명령어입니다.");
 			}
@@ -236,13 +256,70 @@ public class Main {
 		sc.close(); // 자원 사용 종료를 위해 원칙적으로는 꺼줘야함
 	}
 
+	private static int getArticleIndexByArticleId(int articleId) {
+		for (Article article : articles) {
+			if (article.articleId == articleId) {
+				return articles.indexOf(article);
+			}
+		}
+		return -1;
+	}
+
+	private static Article getArticleByArticleId(int articleId) {
+		int index = getArticleIndexByArticleId(articleId);
+		if (index != -1) {
+			return articles.get(index);
+		}
+		return null;
+	}
+
+	private static boolean isDuplicationMemberId(String memberLoginId) { // 내가 작성한 것 일단 남겨놓음
+		for (Member member : members) {
+			if (member.memberLoginId.equals(memberLoginId)) { // equals가 아니라 ==로 하면 안 됨....
+				return true;
+			}
+		}
+		return false;
+	}
 	
+	private static boolean isJoinableLoginId(String memberLoginId) {
+		int index = getMemberIndexByMemberLoginId(memberLoginId);
+
+		if (index == -1) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private static int getMemberIndexByMemberLoginId(String memberLoginId) {
+		int i = 0;
+		for (Member member : members) {
+			if (member.memberLoginId.equals(memberLoginId)) {
+				return i;
+			}
+			i++;
+		}
+		return -1;
+	}
+
 	static List<Article> makeTestData() {
 		articles.add(new Article(1, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "1번글 제목", "1번글 내용", 11));
 		articles.add(new Article(2, "2022-12-02 12:12:12", "2022-12-02 12:12:12", "2번글 제목", "2번글 내용", 22));
 		articles.add(new Article(3, "2022-12-03 12:12:12", "2022-12-03 12:12:12", "3번글 제목", "3번글 내용", 33));
 		return articles;
-    }
+	}
+
+	static List<Member> makeMemberTestData() {
+		members.add(new Member(1, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "abc11", "abc1!", "김철수"));
+		members.add(new Member(2, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "abc22", "abc2@", "이철수"));
+		members.add(new Member(3, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "abc33", "abc3#", "박철수"));
+		return members;
+	}
+
+	static int splitCommand(String command) {
+		return 0;
+	}
 }
 
 class Article {
@@ -256,7 +333,7 @@ class Article {
 	Article(int articleId, String regDate, String modDate, String title, String body) {
 		this(articleId, regDate, modDate, title, body, 0);
 	}
-	
+
 	Article(int articleId, String regDate, String modDate, String title, String body, int hits) {
 		this.articleId = articleId;
 		this.regDate = regDate;
@@ -264,6 +341,24 @@ class Article {
 		this.title = title;
 		this.body = body;
 		this.hits = hits;
+	}
+}
+
+class Member {
+	int memberId;
+	String memberRegDate;
+	String memberModDate;
+	String memberLoginId;
+	String memberLoginPw;
+	String memberName;
+
+	Member(int memberId, String memberRegDate, String memberModDate, String memberLoginId, String memberLoginPw, String memberName) {
+		this.memberId = memberId;
+		this.memberRegDate = memberRegDate;
+		this.memberModDate = memberModDate;
+		this.memberLoginId = memberLoginId;
+		this.memberLoginPw = memberLoginPw;
+		this.memberName = memberName;
 	}
 }
 
