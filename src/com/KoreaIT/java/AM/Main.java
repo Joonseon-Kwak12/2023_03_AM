@@ -21,8 +21,6 @@ public class Main {
 		int lastArticleId = 3;
 		int lastMemberId = 3;
 		
-		System.out.println(isDuplicationMemberId(sc.nextLine()));
-		
 		while (true) {
 			System.out.print("명령어 >> ");
 			String command = sc.nextLine().trim();
@@ -212,27 +210,37 @@ public class Main {
 //				members.add(new Member(memberId, memberRegDate, memberRegDate, memberLoginId, memberLoginPw, memberName));
 //				System.out.printf("%d번 회원님 가입이 완료되었습니다.\n회원님의 아이디는 %s입니다.\n", memberId, memberLoginId);
 				int memberId = lastMemberId + 1;
-				String memberRegDate = Util.getNowDateTimeStr();
+				
 				String memberLoginId = null;
 				while (true) {
 					System.out.print("로그인 아이디 : ");
 					memberLoginId = sc.nextLine();
-
+					
 					if (isJoinableLoginId(memberLoginId) == false) {
 						System.out.println("이미 사용중인 아이디입니다");
 						continue;
 					}
-
 					break;
-
 				}
-				System.out.print("로그인 비밀번호 : ");
-				String memberLoginPw = sc.nextLine();
-				System.out.print("로그인 비밀번호 확인: ");
-				String loginPwConfirm = sc.nextLine();
+
+				String memberLoginPw;
+				while (true) {
+					System.out.print("로그인 비밀번호 : ");
+					memberLoginPw = sc.nextLine();
+					System.out.print("로그인 비밀번호 확인: ");
+					String loginPwConfirm = sc.nextLine();
+					
+					if (!memberLoginPw.equals(loginPwConfirm)) {
+						System.out.println("비밀번호가 일치하지 않습니다. 다시 입력해주세요.");
+						continue;
+					}
+					
+					break;
+				}
 				System.out.print("이름 : ");
 				String memberName = sc.nextLine();
 
+				String memberRegDate = Util.getNowDateTimeStr();
 				Member member = new Member(memberId, memberRegDate, memberRegDate, memberLoginId, memberLoginPw, memberName);
 				members.add(member);
 
