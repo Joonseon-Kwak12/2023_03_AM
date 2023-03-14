@@ -13,8 +13,6 @@ public class MemberController extends Controller {
 	private String command;
 	private String actionMethodName;
 	
-	private Member loginedMember = null;
-	
 	int lastMemberId = 0;;
 
 	public MemberController(Scanner sc) {
@@ -46,10 +44,6 @@ public class MemberController extends Controller {
 	}
 	
 	private void doJoin() {
-		if(isLogined()) {
-			System.out.println("로그인 상태에서는 회원가입이 불가능합니다.");
-			return;
-		}
 //		System.out.print("사용할 아이디를 입력해주세요 >> ");
 //		String memberLoginId = sc.nextLine();
 //		if (isDuplicationMemberId(memberLoginId)) {
@@ -110,11 +104,6 @@ public class MemberController extends Controller {
 	//
 	//
 	private void doLogin() {
-		if(isLogined()) {
-			System.out.println("이미 로그인 상태입니다.");
-			return;
-		}
-		
 		System.out.println("==로그인 화면==");
 		System.out.print("로그인 아이디: ");
 		String loginId = sc.nextLine();
@@ -147,10 +136,6 @@ public class MemberController extends Controller {
 	//
 	//
 	private void showProfile() {
-		if (!isLogined()) {
-			System.out.println("로그인 후 이용해주세요.");
-			return;
-		}
 		System.out.println("== 현재 로그인된 회원 정보 ==");
 		System.out.printf("로그인 아이디: %s\n", loginedMember.loginId);
 		System.out.printf("이름: %s\n", loginedMember.name);
@@ -186,11 +171,12 @@ public class MemberController extends Controller {
 		return members.get(index);
 	}
 	
-	private boolean isLogined() {
-		return loginedMember != null;
+	protected Member getLoginedMember() {
+		return loginedMember;
 	}
 	
 	public void makeTestData() {
+		System.out.println("테스트를 위한 회원 데이터를 생성합니다.");
 		members.add(new Member(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test1", "test1", "김철수"));
 		members.add(new Member(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test2", "test2", "나철수"));
 		members.add(new Member(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test3", "test3", "박철수"));

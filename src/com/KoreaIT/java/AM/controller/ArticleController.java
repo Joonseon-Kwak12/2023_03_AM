@@ -12,7 +12,7 @@ public class ArticleController extends Controller {
 	private Scanner sc;
 	private String command;
 	private String actionMethodName;
-	
+
 	int lastArticleId = 0;
 
 	public ArticleController(Scanner sc) {
@@ -54,7 +54,7 @@ public class ArticleController extends Controller {
 		String regDate = Util.getNowDateTimeStr();
 
 		int articleId = ++lastArticleId;
-		Article article = new Article(articleId, regDate, regDate, title, body);
+		Article article = new Article(articleId, regDate, regDate, loginedMember.id, title, body);
 		articles.add(article);
 
 		System.out.printf("%d번글이 생성되었습니다.\n", article.id);
@@ -85,10 +85,10 @@ public class ArticleController extends Controller {
 			}
 		}
 
-		System.out.println(" 번호  //  제목    //  조회  ");
+		System.out.println(" 번호  //  제목    //  조회    //  작성자");
 		for (int i = forPrintArticles.size() - 1; i >= 0; i--) {
 			Article article = forPrintArticles.get(i);
-			System.out.printf("  %d   //   %s   //   %d  \n", article.id, article.title, article.hit);
+			System.out.printf("  %d   //   %s   //   %d   //  %d  \n", article.id, article.title, article.hit, article.memberId);
 		}
 	}
 
@@ -115,9 +115,10 @@ public class ArticleController extends Controller {
 		System.out.println("번호: " + foundArticle.id);
 		System.out.println("작성날짜: " + foundArticle.regDate);
 		System.out.println("수정날짜: " + foundArticle.updateDate);
-		System.out.println("조회수: " + foundArticle.hit);
+		System.out.println("작성자: " + loginedMember.id);
 		System.out.println("제목: " + foundArticle.title);
 		System.out.println("내용: " + foundArticle.body);
+		System.out.println("조회수: " + foundArticle.hit);
 	}
 
 	private void doModify() {
@@ -126,7 +127,9 @@ public class ArticleController extends Controller {
 			System.out.println("명령어를 확인해주세요.");
 			return;
 		}
+		
 		int id;
+		
 		try {
 			id = Integer.parseInt(cmdDiv[2]);
 		} catch (NumberFormatException e) {
@@ -135,11 +138,16 @@ public class ArticleController extends Controller {
 		}
 
 		Article foundArticle = getArticleByArticleId(id);
-
+		
 		if (foundArticle == null) {
 			System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
+		if (foundArticle.memberId != loginedMember.id) {
+			System.out.println("권한이 없습니다.");
+			return;
+		}
+		
 		System.out.print("수정할 제목: ");
 		String title = sc.nextLine();
 		System.out.print("수정할 내용: ");
@@ -158,7 +166,9 @@ public class ArticleController extends Controller {
 			System.out.println("명령어를 확인해주세요.");
 			return;
 		}
+		
 		int id;
+		
 		try {
 			id = Integer.parseInt(cmdDiv[2]);
 		} catch (NumberFormatException e) {
@@ -166,10 +176,14 @@ public class ArticleController extends Controller {
 			return;
 		}
 
-		int foundIndex = getArticleIndexByArticleId(id);
+		int foundIndex = getArticleIndexByArticleId(id); // 사실 여기서 index 기준이 아니라 object 기준으로 작업해도 전혀 상관이 없다.
 
 		if (foundIndex == -1) {
 			System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
+			return;
+		}
+		if (articles.get(foundIndex).memberId != loginedMember.id) {
+			System.out.println("권한이 없습니다.");
 			return;
 		}
 
@@ -195,9 +209,11 @@ public class ArticleController extends Controller {
 	}
 
 	public void makeTestData() {
-		articles.add(new Article(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "1번글 제목임", "1번글 내용", 11));
-		articles.add(new Article(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "2번글 제목", "2번글 내용임", 22));
-		articles.add(new Article(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "3번글 제목입니다.", "3번글 내용이다/", 33));
-		lastArticleId = articles.get(articles.size()-1).id;
+		System.out.println("테스트를 위한 게시글 데이터를 생성합니다.");
+		articles.add(new Article(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), 2, "1번글 제목임", "1번글 내용", 11));
+		articles.add(new Article(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), 2, "2번글 제목", "2번글 내용임", 22));
+		articles.add(
+				new Article(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), 3, "3번글 제목입니다.", "3번글 내용이다/", 33));
+		lastArticleId = articles.get(articles.size() - 1).id;
 	}
 }
