@@ -194,11 +194,10 @@ public class ArticleController extends Controller {
 		return null;
 	}
 
-	public List<Article> makeTestData() {
+	public void makeTestData() {
 		articles.add(new Article(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "1번글 제목임", "1번글 내용", 11));
 		articles.add(new Article(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "2번글 제목", "2번글 내용임", 22));
 		articles.add(new Article(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "3번글 제목입니다.", "3번글 내용이다/", 33));
 		lastArticleId = articles.get(articles.size()-1).id;
-		return articles;
 	}
 }

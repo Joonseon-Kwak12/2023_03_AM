@@ -13,7 +13,7 @@ public class MemberController extends Controller {
 	private String command;
 	private String actionMethodName;
 	
-	private Member loginedMember;
+	private Member loginedMember = null;
 	
 	int lastMemberId = 0;;
 
@@ -35,6 +35,9 @@ public class MemberController extends Controller {
 			break;
 		case "logout":
 			doLogout();
+			break;
+		case "profile":
+			showProfile();
 			break;
 		default:
 			System.out.println("해당 기능은 사용할 수 없습니다.");
@@ -103,6 +106,11 @@ public class MemberController extends Controller {
 	//
 	//
 	private void doLogin() {
+		if(isLogined()) {
+			System.out.println("이미 로그인 상태입니다.");
+			return;
+		}
+		
 		System.out.println("==로그인 화면==");
 		System.out.print("로그인 아이디: ");
 		String loginId = sc.nextLine();
@@ -125,7 +133,23 @@ public class MemberController extends Controller {
 	//
 	//
 	private void doLogout() {
-		return;
+		if (!isLogined()) {
+			System.out.println("로그인 상태가 아닙니다.");
+			return;
+		}
+		loginedMember = null;
+		System.out.println("로그아웃 되었습니다.");
+	}
+	//
+	//
+	private void showProfile() {
+		if (!isLogined()) {
+			System.out.println("로그인 후 이용해주세요.");
+			return;
+		}
+		System.out.println("== 현재 로그인된 회원 정보 ==");
+		System.out.printf("로그인 아이디: %s\n", loginedMember.loginId);
+		System.out.printf("이름: %s\n", loginedMember.name);
 	}
 	//
 	//
@@ -158,12 +182,15 @@ public class MemberController extends Controller {
 		return members.get(index);
 	}
 	
-	public List<Member> makeMemberTestData() {
+	private boolean isLogined() {
+		return loginedMember != null;
+	}
+	
+	public void makeTestData() {
 		members.add(new Member(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test1", "test1", "김철수"));
 		members.add(new Member(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test2", "test2", "나철수"));
 		members.add(new Member(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test3", "test3", "박철수"));
 		lastMemberId = members.get(members.size()-1).id;
-		return members;
 	}
 	
 //	private boolean isDuplicationMemberId(String memberLoginId) { // 내가 작성한 것 일단 남겨놓음

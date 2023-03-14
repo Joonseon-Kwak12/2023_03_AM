@@ -30,7 +30,7 @@ public class App {
 		Controller controller;
 		
 		articleController.makeTestData();
-		memberController.makeMemberTestData();
+		memberController.makeTestData();
 
 		while (true) {
 			System.out.print("명령어 >> ");
