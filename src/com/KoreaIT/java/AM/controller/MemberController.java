@@ -1,23 +1,48 @@
 package com.KoreaIT.java.AM.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import com.KoreaIT.java.AM.dto.Member;
 import com.KoreaIT.java.AM.util.Util;
 
-public class MemberController {
+public class MemberController extends Controller {
 	List<Member> members;
 	private Scanner sc;
+	private String command;
+	private String actionMethodName;
+	
+	private Member loginedMember;
+	
+	int lastMemberId = 0;;
 
-	public MemberController(List<Member> members, Scanner sc) {
-		this.members = members;
+	public MemberController(Scanner sc) {
+		this.members = new ArrayList<>();
 		this.sc = sc;
 	}
-
-	int lastMemberId = 0;
-
-	public void doJoin() {
+	
+	public void doAction(String actionMethodName, String command) {
+		this.command = command;
+		this.actionMethodName = actionMethodName;
+		
+		switch(actionMethodName) {
+		case "join":
+			doJoin();
+			break;
+		case "login":
+			doLogin();
+			break;
+		case "logout":
+			doLogout();
+			break;
+		default:
+			System.out.println("해당 기능은 사용할 수 없습니다.");
+			break;
+		}
+	}
+	
+	private void doJoin() {
 //		System.out.print("사용할 아이디를 입력해주세요 >> ");
 //		String memberLoginId = sc.nextLine();
 //		if (isDuplicationMemberId(memberLoginId)) {
@@ -74,21 +99,36 @@ public class MemberController {
 
 		System.out.printf("%d번 회원이 가입되었습니다\n", id);
 		lastMemberId++;
-
-		//
-		//
 	}
+	//
+	//
+	private void doLogin() {
+		System.out.println("==로그인 화면==");
+		System.out.print("로그인 아이디: ");
+		String loginId = sc.nextLine();
+		System.out.print("로그인 비밀번호: ");
+		String loginPw = sc.nextLine();
 		
-	private boolean isJoinableLoginId(String loginId) {
-		int index = getMemberIndexByLoginId(loginId);
-
-		if (index == -1) {
-			return true;
+		Member member = getMemberByLoginId(loginId);
+		if (member == null) {
+			System.out.println("일치하는 회원 아이디가 없습니다.");
+			return;
 		}
-
-		return false;
+		if (!member.loginPw.equals(loginPw)) {
+			System.out.println("비밀번호가 일치하지 않습니다.");
+			return;
+		}
+		
+		loginedMember = member;
+		System.out.printf("로그인 성공! %s님 반갑습니다.\n", loginedMember.name);
 	}
-	
+	//
+	//
+	private void doLogout() {
+		return;
+	}
+	//
+	//
 	private int getMemberIndexByLoginId(String loginId) {
 		int i = 0;
 		for (Member member : members) {
@@ -99,11 +139,30 @@ public class MemberController {
 		}
 		return -1;
 	}
+
+	private boolean isJoinableLoginId(String loginId) {
+		int index = getMemberIndexByLoginId(loginId);
+
+		if (index == -1) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	private Member getMemberByLoginId(String loginId) {
+		int index = getMemberIndexByLoginId(loginId);
+		if (index == -1) {
+			return null;
+		}
+		return members.get(index);
+	}
 	
 	public List<Member> makeMemberTestData() {
-		members.add(new Member(1, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "abc11", "abc1!", "김철수"));
-		members.add(new Member(2, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "abc22", "abc2@", "이철수"));
-		members.add(new Member(3, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "abc33", "abc3#", "박철수"));
+		members.add(new Member(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test1", "test1", "김철수"));
+		members.add(new Member(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test2", "test2", "나철수"));
+		members.add(new Member(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test3", "test3", "박철수"));
+		lastMemberId = members.get(members.size()-1).id;
 		return members;
 	}
 	

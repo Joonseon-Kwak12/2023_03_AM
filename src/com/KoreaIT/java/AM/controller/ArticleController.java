@@ -7,18 +7,46 @@ import java.util.Scanner;
 import com.KoreaIT.java.AM.dto.Article;
 import com.KoreaIT.java.AM.util.Util;
 
-public class ArticleController {
+public class ArticleController extends Controller {
 	List<Article> articles;
 	private Scanner sc;
+	private String command;
+	private String actionMethodName;
 	
-	public ArticleController(List<Article> articles, Scanner sc) {
-		this.articles = articles;
-		this.sc =sc;
+	int lastArticleId = 0;
+
+	public ArticleController(Scanner sc) {
+		this.articles = new ArrayList<>();
+		this.sc = sc;
 	}
-	
-	int lastArticleId = 3;
-	
-	public void doWrite() {
+
+	public void doAction(String actionMethodName, String command) {
+		this.actionMethodName = actionMethodName;
+		this.command = command;
+
+		switch (actionMethodName) {
+		case "write":
+			doWrite();
+			break;
+		case "list":
+			showList();
+			break;
+		case "detail":
+			showDetail();
+			break;
+		case "modify":
+			doModify();
+			break;
+		case "delete":
+			doDelete();
+			break;
+		default:
+			System.out.println("해당 기능은 사용할 수 없습니다.");
+			break;
+		}
+	}
+
+	private void doWrite() {
 		System.out.print("제목: ");
 		String title = sc.nextLine();
 		System.out.print("내용: ");
@@ -32,7 +60,7 @@ public class ArticleController {
 		System.out.printf("%d번글이 생성되었습니다.\n", article.id);
 	}
 
-	public void showList(String command) {
+	private void showList() {
 		if (articles.size() == 0) {
 			System.out.println("게시글이 없습니다");
 			return;
@@ -63,8 +91,8 @@ public class ArticleController {
 			System.out.printf("  %d   //   %s   //   %d  \n", article.id, article.title, article.hit);
 		}
 	}
-	
-	public void showDetail(String command) {
+
+	private void showDetail() {
 		String[] cmdDiv = command.split(" ");
 		if (cmdDiv.length != 3) {
 			System.out.println("명령어를 확인해주세요.");
@@ -89,10 +117,10 @@ public class ArticleController {
 		System.out.println("수정날짜: " + foundArticle.updateDate);
 		System.out.println("조회수: " + foundArticle.hit);
 		System.out.println("제목: " + foundArticle.title);
-		System.out.println("내용: " + foundArticle.body);		
+		System.out.println("내용: " + foundArticle.body);
 	}
-	
-	public void doModify(String command) {
+
+	private void doModify() {
 		String[] cmdDiv = command.split(" ");
 		if (cmdDiv.length != 3) {
 			System.out.println("명령어를 확인해주세요.");
@@ -123,8 +151,8 @@ public class ArticleController {
 		foundArticle.updateDate = modDate;
 		System.out.println(foundArticle.id + "번 게시물이 수정되었습니다.");
 	}
-	
-	public void doDelete(String command) {
+
+	private void doDelete() {
 		String[] cmdDiv = command.split(" ");
 		if (cmdDiv.length != 3) {
 			System.out.println("명령어를 확인해주세요.");
@@ -148,7 +176,7 @@ public class ArticleController {
 		articles.remove(foundIndex);
 		System.out.println(id + "번 게시물이 삭제되었습니다.");
 	}
-	
+
 	private int getArticleIndexByArticleId(int articleId) {
 		for (Article article : articles) {
 			if (article.id == articleId) {
@@ -165,11 +193,12 @@ public class ArticleController {
 		}
 		return null;
 	}
-	
+
 	public List<Article> makeTestData() {
-		articles.add(new Article(1, "2022-12-01 12:12:12", "2022-12-01 12:12:12", "1번글 제목", "1번글 내용", 11));
-		articles.add(new Article(2, "2022-12-02 12:12:12", "2022-12-02 12:12:12", "2번글 제목", "2번글 내용", 22));
-		articles.add(new Article(3, "2022-12-03 12:12:12", "2022-12-03 12:12:12", "3번글 제목", "3번글 내용", 33));
+		articles.add(new Article(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "1번글 제목임", "1번글 내용", 11));
+		articles.add(new Article(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "2번글 제목", "2번글 내용임", 22));
+		articles.add(new Article(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "3번글 제목입니다.", "3번글 내용이다/", 33));
+		lastArticleId = articles.get(articles.size()-1).id;
 		return articles;
 	}
 }

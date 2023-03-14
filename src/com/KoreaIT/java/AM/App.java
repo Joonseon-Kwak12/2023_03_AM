@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.KoreaIT.java.AM.controller.ArticleController;
+import com.KoreaIT.java.AM.controller.Controller;
 import com.KoreaIT.java.AM.controller.MemberController;
 import com.KoreaIT.java.AM.dto.Article;
 import com.KoreaIT.java.AM.dto.Member;
@@ -24,8 +25,9 @@ public class App {
 
 		Scanner sc = new Scanner(System.in);
 
-		MemberController memberController = new MemberController(members, sc);
-		ArticleController articleController = new ArticleController(articles, sc);
+		ArticleController articleController = new ArticleController(sc);
+		MemberController memberController = new MemberController(sc);
+		Controller controller;
 		
 		articleController.makeTestData();
 		memberController.makeMemberTestData();
@@ -43,23 +45,46 @@ public class App {
 				break;
 			}
 			//
-			if (command.equals("article write")) {
-				articleController.doWrite();
-			} else if (command.startsWith("article list")) {
-				articleController.showList(command);
-			} else if (command.startsWith("article detail")) {
-				articleController.showDetail(command);
-			} else if (command.startsWith("article delete")) {
-				articleController.doDelete(command);
-			} else if (command.startsWith("article modify")) {
-				articleController.doModify(command);
-			} else if (command.equals("member join")) {
-				memberController.doJoin();
-			} else if (command.equals("member list")) {
-				// 아직 구현 안 함
+			String[] commandDiv = command.split(" ");
+			
+			if (commandDiv.length == 1) {
+				System.out.println("명령어를 확인해주세요.");
+				continue;
+			}
+			
+			String controllerName = commandDiv[0];
+			String actionMethodName = commandDiv[1];
+			
+			controller = null;
+			
+			if (controllerName.equals("article")) {
+				controller = articleController;
+			} else if (controllerName.equals("member")) {
+				controller = memberController; 
 			} else {
 				System.out.println("존재하지 않는 명령어입니다.");
+				continue;
 			}
+			
+			controller.doAction(actionMethodName, command);
+			//
+//			if (command.equals("article write")) {
+//				articleController.doWrite();
+//			} else if (command.startsWith("article list")) {
+//				articleController.showList(command);
+//			} else if (command.startsWith("article detail")) {
+//				articleController.showDetail(command);
+//			} else if (command.startsWith("article delete")) {
+//				articleController.doDelete(command);
+//			} else if (command.startsWith("article modify")) {
+//				articleController.doModify(command);
+//			} else if (command.equals("member join")) {
+//				memberController.doJoin();
+//			} else if (command.equals("member list")) {
+//				// 아직 구현 안 함
+//			} else {
+//				System.out.println("존재하지 않는 명령어입니다.");
+//			}
 		}
 		System.out.println("==프로그램 끝==");
 		sc.close(); // 자원 사용 종료를 위해 원칙적으로는 꺼줘야함
