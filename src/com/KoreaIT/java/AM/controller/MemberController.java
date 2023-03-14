@@ -46,6 +46,10 @@ public class MemberController extends Controller {
 	}
 	
 	private void doJoin() {
+		if(isLogined()) {
+			System.out.println("로그인 상태에서는 회원가입이 불가능합니다.");
+			return;
+		}
 //		System.out.print("사용할 아이디를 입력해주세요 >> ");
 //		String memberLoginId = sc.nextLine();
 //		if (isDuplicationMemberId(memberLoginId)) {
