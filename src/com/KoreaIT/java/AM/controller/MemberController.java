@@ -4,15 +4,18 @@ import java.util.Scanner;
 
 import com.KoreaIT.java.AM.container.Container;
 import com.KoreaIT.java.AM.dto.Member;
+import com.KoreaIT.java.AM.service.MemberService;
 import com.KoreaIT.java.AM.util.Util;
 
 public class MemberController extends Controller {
 	private Scanner sc;
 	private String command;
 	private String actionMethodName;
+	private MemberService memberService;
 
 	public MemberController(Scanner sc) {
 		this.sc = sc;
+		memberService = Container.memberService;
 	}
 
 	public void doAction(String actionMethodName, String command) {
@@ -161,19 +164,11 @@ public class MemberController extends Controller {
 	//
 	//
 	private int getMemberIndexByLoginId(String loginId) {
-		int i = 0;
-		for (Member member : Container.memberDao.members) { ////// 여기 다시 확인
-			if (member.loginId.equals(loginId)) {
-				return i;
-			}
-			i++;
-		}
-		return -1;
+		return memberService.getMemberIndexByLoginId(loginId);
 	}
 
 	private boolean isJoinableLoginId(String loginId) {
 		int index = getMemberIndexByLoginId(loginId);
-
 		if (index == -1) {
 			return true;
 		}
@@ -182,11 +177,7 @@ public class MemberController extends Controller {
 	}
 
 	private Member getMemberByLoginId(String loginId) {
-		int index = getMemberIndexByLoginId(loginId);
-		if (index == -1) {
-			return null;
-		}
-		return Container.memberDao.members.get(index);
+		return memberService.getMemberByLoginId(loginId);	
 	}
 
 	protected Member getLoginedMember() {
