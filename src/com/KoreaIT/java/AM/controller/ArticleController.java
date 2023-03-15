@@ -7,15 +7,19 @@ import java.util.Scanner;
 import com.KoreaIT.java.AM.container.Container;
 import com.KoreaIT.java.AM.dto.Article;
 import com.KoreaIT.java.AM.dto.Member;
+import com.KoreaIT.java.AM.service.ArticleService;
 import com.KoreaIT.java.AM.util.Util;
 
 public class ArticleController extends Controller {
 	private Scanner sc;
 	private String command;
 	private String actionMethodName;
+	private ArticleService articleService;
 
 	public ArticleController(Scanner sc) {
+		
 		this.sc = sc;
+		articleService = Container.articleService;
 	}
 
 	public void doAction(String actionMethodName, String command) {
@@ -66,25 +70,30 @@ public class ArticleController extends Controller {
 
 		String searchKeyword = command.substring("article list".length()).trim();
 
-		List<Article> forPrintArticles = Container.articleDao.articles;
-
-		if (searchKeyword.length() > 0) {
-			System.out.println("searchKeyword : " + searchKeyword);
-			forPrintArticles = new ArrayList<>();
-
-			for (Article article : Container.articleDao.articles) {
-				if (article.title.contains(searchKeyword)) {
-					forPrintArticles.add(article);
-				}
-			}
-			if (forPrintArticles.size() == 0) {
-				System.out.println("검색 결과가 없습니다");
-				return;
-			}
+		List<Article> forPrintArticles = articleService.getForPrintArticles(searchKeyword);
+		
+		if (forPrintArticles.size() == 0) {
+			System.out.println("검색 결과가 없습니다");
+			return;
 		}
-
+		
+//		if (forPrintArticles.size() ==0)
+//
+//		if (searchKeyword.length() > 0) {
+//			System.out.println("searchKeyword : " + searchKeyword);
+//			forPrintArticles = new ArrayList<>();
+//
+//			for (Article article : Container.articleDao.articles) {
+//				if (article.title.contains(searchKeyword)) {
+//					forPrintArticles.add(article);
+//				}
+//			}
+//			if (forPrintArticles.size() == 0) {
+//				System.out.println("검색 결과가 없습니다");
+//				return;
+//			}
+//		}
 		String writerName = null;
-
 		List<Member> members = Container.memberDao.members;
 
 		System.out.println("   번호   //   제목   //   조회   //   작성자   ");
@@ -96,8 +105,8 @@ public class ArticleController extends Controller {
 					break;
 				}
 			}
-			System.out.printf("   %d   //   %s   //   %d   //   %s   \n", article.id, article.title, article.hit,
-					writerName);
+			System.out.printf("   %d   //   %s   //   %d   //   %s   \n"
+					, article.id, article.title, article.hit, writerName);
 		}
 	}
 
@@ -234,7 +243,7 @@ public class ArticleController extends Controller {
 
 	public void makeTestData() {
 		System.out.println("테스트를 위한 게시글 데이터를 생성합니다.");
-		Container.articleDao
+		articleService
 				.add(new Article(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), 2, "1번글 제목임", "1번글 내용", 11));
 		Container.articleDao
 				.add(new Article(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), 2, "2번글 제목", "2번글 내용임", 22));

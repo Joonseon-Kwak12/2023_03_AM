@@ -24,4 +24,22 @@ public class ArticleDao extends Dao {
 	public int setNewId() {
 		return lastId + 1;
 	}
+	
+	public List<Article> getArticles(String searchKeyword) {
+		if (searchKeyword.length() > 0 && searchKeyword != null) {
+			System.out.println("검색어: searchKeyword");
+			
+			List<Article> forPrintArticles = new ArrayList<>();
+			
+			for (Article article : articles) {
+				if (article.title.contains(searchKeyword)) {
+					forPrintArticles.add(article);
+				}
+			}
+			return forPrintArticles;
+		}
+		return articles;
+	}
+	
+	
 }
