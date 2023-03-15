@@ -5,10 +5,23 @@ import java.util.List;
 
 import com.KoreaIT.java.AM.dto.Article;
 
-public class ArticleDao {
+public class ArticleDao extends Dao {
 	public List<Article> articles;
 	
 	public ArticleDao() {
 		articles = new ArrayList<>();
+	}
+	
+	public void add(Article article) {
+		articles.add(article);
+		lastId++;
+	}
+	
+	public int getLastId() {
+		return lastId;
+	}
+	
+	public int setNewId() {
+		return lastId + 1;
 	}
 }
