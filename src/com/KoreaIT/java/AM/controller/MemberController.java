@@ -19,8 +19,8 @@ public class MemberController extends Controller {
 	}
 
 	public void doAction(String actionMethodName, String command) {
-		this.command = command;
 		this.actionMethodName = actionMethodName;
+		this.command = command;
 
 		switch (actionMethodName) {
 		case "join":
@@ -67,7 +67,7 @@ public class MemberController extends Controller {
 			System.out.print("로그인 아이디 : ");
 			loginId = sc.nextLine();
 
-			if (isJoinableLoginId(loginId) == false) {
+			if (memberService.isJoinableLoginId(loginId) == false) {
 				System.out.println("이미 사용중인 아이디입니다");
 				continue;
 			}
@@ -92,7 +92,7 @@ public class MemberController extends Controller {
 		String memberName = sc.nextLine();
 
 		String regDate = Util.getNowDateTimeStr();
-		int id = Container.memberDao.setNewId();
+		int id = memberService.setNewId();
 		Member member = new Member(id, regDate, regDate, loginId, loginPw, memberName);
 		Container.memberDao.add(member);
 
@@ -127,7 +127,7 @@ public class MemberController extends Controller {
 			break;
 		}
 		
-		member = getMemberByLoginId(loginId);
+		member = memberService.getMemberByLoginId(loginId);
 		if (member == null) {
 			System.out.println("일치하는 회원 아이디가 없습니다.");
 			return;
@@ -163,34 +163,13 @@ public class MemberController extends Controller {
 
 	//
 	//
-	private int getMemberIndexByLoginId(String loginId) {
-		return memberService.getMemberIndexByLoginId(loginId);
-	}
-
-	private boolean isJoinableLoginId(String loginId) {
-		int index = getMemberIndexByLoginId(loginId);
-		if (index == -1) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private Member getMemberByLoginId(String loginId) {
-		return memberService.getMemberByLoginId(loginId);	
-	}
-
-	protected Member getLoginedMember() {
-		return loginedMember;
-	}
-
 	public void makeTestData() {
 		System.out.println("테스트를 위한 회원 데이터를 생성합니다.");
-		Container.memberDao
+		memberService
 				.add(new Member(1, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test1", "test1", "1철수"));
-		Container.memberDao
+		memberService
 				.add(new Member(2, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test2", "test2", "2철수"));
-		Container.memberDao
+		memberService
 				.add(new Member(3, Util.getNowDateTimeStr(), Util.getNowDateTimeStr(), "test3", "test3", "3철수"));
 	}
 

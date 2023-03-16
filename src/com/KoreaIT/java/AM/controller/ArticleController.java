@@ -5,7 +5,9 @@ import java.util.Scanner;
 
 import com.KoreaIT.java.AM.container.Container;
 import com.KoreaIT.java.AM.dto.Article;
+import com.KoreaIT.java.AM.dto.Member;
 import com.KoreaIT.java.AM.service.ArticleService;
+import com.KoreaIT.java.AM.service.MemberService;
 import com.KoreaIT.java.AM.util.Util;
 
 public class ArticleController extends Controller {
@@ -13,10 +15,12 @@ public class ArticleController extends Controller {
 	private String command;
 	private String actionMethodName;
 	private ArticleService articleService;
+	private MemberService memberService;
 
 	public ArticleController(Scanner sc) {
 		this.sc = sc;
 		articleService = Container.articleService;
+		memberService = Container.memberService;
 	}
 
 	public void doAction(String actionMethodName, String command) {
@@ -85,12 +89,20 @@ public class ArticleController extends Controller {
 //				return;
 //			}
 //		}
+		String writerName = null;
+		List<Member> members = memberService.getMembers();
 
 		System.out.println("   번호   //   제목   //   조회   //   작성자   ");
 		for (int i = forPrintArticles.size() - 1; i >= 0; i--) {
 			Article article = forPrintArticles.get(i);
+			for (Member member : members) {
+				if (article.id == member.id) {
+					writerName = member.name;
+					break;
+				}
+			}
 			System.out.printf("   %d   //   %s   //   %d   //   %s   \n", article.id, article.title, article.hit,
-					articleService.getMemberNameByArticle(article));
+					writerName);
 		}
 	}
 
@@ -113,12 +125,20 @@ public class ArticleController extends Controller {
 			System.out.printf("%d번 게시물은 존재하지 않습니다.\n", id);
 			return;
 		}
+		
+		String writerName = null;
+		List<Member> members = memberService.getMembers();
+		for (Member member : members) {
+			if (member.id == foundArticle.memberId) {
+				writerName = member.name;
+				break;
+			}
+		}
 		foundArticle.hit++;
-
 		System.out.println("번호: " + foundArticle.id);
 		System.out.println("작성날짜: " + foundArticle.regDate);
 		System.out.println("수정날짜: " + foundArticle.updateDate);
-		System.out.println("작성자: " + articleService.getMemberNameByArticle(foundArticle)); // 여기 메소드 수정해야함
+		System.out.println("작성자: " + writerName); // 여기 메소드 수정해야함
 		System.out.println("제목: " + foundArticle.title);
 		System.out.println("내용: " + foundArticle.body);
 		System.out.println("조회수: " + foundArticle.hit);

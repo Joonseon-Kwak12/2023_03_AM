@@ -20,9 +20,9 @@ public class MemberDao extends Dao {
 		return lastId + 1;
 	}
 	
-	public int getMemberIndexByLoginId(String loginId) {
+	private int getMemberIndexByLoginId(String loginId) {
+		int i = 0;
 		for (Member member : members) {
-			int i = 0;
 			if (member.loginId.equals(loginId)) {
 				return i;
 			}
@@ -30,18 +30,30 @@ public class MemberDao extends Dao {
 		}
 		return -1;
 	}
-
-	public void add(Member member) {
-		members.add(member);
-		lastId++;
-	}
-
+	
 	public Member getMemberByLoginId(String loginId) {
 		int index = getMemberIndexByLoginId(loginId);
 		if (index == -1) {
 			return null;
 		}
 		return members.get(index);
+	}
+	
+	public boolean isJoinableLoginId(String loginId) {
+		int index = getMemberIndexByLoginId(loginId);
+		if (index == -1) {
+			return true;
+		} 
+		return false;
+	}
+
+	public List<Member> getMembers() {
+		return members;
+	}
+	
+	public void add(Member member) {
+		members.add(member);
+		lastId++;
 	}
 
 }

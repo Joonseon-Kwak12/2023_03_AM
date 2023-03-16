@@ -19,7 +19,7 @@ public class ArticleService {
 		return id;
 	}
 	
-	public String getMemberNameByArticle(Article article) {
+	public String getMemberNameByArticle(Article article) { // 안 쓰는 중
 		return articleDao.getMemberNameByArticle(article);
 	}
 	
